@@ -80,3 +80,37 @@ jobs:
       with:
         name: dist
         path: dist/
+
+  auto-tag:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get base version from pyproject.toml
+      id: version
+      run: |
+        BASE_VERSION=$(python3 -c "
+        import re
+        with open('pyproject.toml') as f:
+            match = re.search(r'version\s*=\s*\"(.+?)\"', f.read())
+        print(match.group(1))
+        ")
+        echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
+
+    - name: Create and push suffixed tag
+      run: |
+        BASE_VERSION="${{ steps.version.outputs.base_version }}"
+        LAST=$(git tag -l "v${BASE_VERSION}-*" | sed "s/v${BASE_VERSION}-//" | sort -n | tail -1)
+        NEXT=$(( ${LAST:-0} + 1 ))
+        TAG="v${BASE_VERSION}-${NEXT}"
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag "$TAG"
+        git push origin "$TAG"
