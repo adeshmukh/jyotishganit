@@ -98,10 +98,23 @@ def get_ephemeris():
     return _eph
 
 
+def _hipparcos_path():
+    """
+    Path or URL for the Hipparcos catalog (hip_main.dat).
+
+    If JYOTISHGANIT_HIP_MAIN_DAT is set to an existing file path, that path is
+    used so the catalog is read locally instead of being downloaded.
+    """
+    path = os.environ.get("JYOTISHGANIT_HIP_MAIN_DAT", "").strip()
+    if path and os.path.isfile(path):
+        return path
+    return hipparcos.URL
+
+
 @cache
 def _get_spica() -> Star:
     """Get cached Spica star object - matches original implementation."""
-    with load.open(hipparcos.URL) as f:
+    with load.open(_hipparcos_path()) as f:
         df = hipparcos.load_dataframe(f)
     # HIP 65474 is the Hipparcos catalog number for Spica (Alpha Virginis)
     spica_df = df.loc[65474]

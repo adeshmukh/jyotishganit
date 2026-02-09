@@ -17,7 +17,11 @@ from skyfield.api import Star, load
 from skyfield.data import hipparcos
 
 # Use global Skyfield objects from core.astronomical
-from jyotishganit.core.astronomical import get_ephemeris, get_timescale
+from jyotishganit.core.astronomical import (
+    _hipparcos_path,
+    get_ephemeris,
+    get_timescale,
+)
 from jyotishganit.core.constants import (
     FIXED_KARANAS,
     MOVABLE_KARANAS,
@@ -38,7 +42,7 @@ def _get_sun():
 @cache
 def get_spica_star_object():
     """Loads the Hipparcos star catalog and returns the Skyfield Star object for Spica."""
-    with load.open(hipparcos.URL) as f:
+    with load.open(_hipparcos_path()) as f:
         df = hipparcos.load_dataframe(f)
     spica_df = df.loc[65474]
     return Star.from_dataframe(spica_df)

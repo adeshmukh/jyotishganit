@@ -260,6 +260,8 @@ Ephemeris data is automatically stored in platform-appropriate locations:
 - **macOS**: `~/Library/Application Support/jyotishganit/`  
 - **Linux**: `~/.local/share/jyotishganit/`
 
+Ayanamsa (sidereal zodiac) uses the Hipparcos star catalog (`hip_main.dat`). By default it is downloaded from CDS on first use. To use a local file instead (e.g. offline or behind a firewall), set the environment variable **`JYOTISHGANIT_HIP_MAIN_DAT`** to the full path of your `hip_main.dat` file.
+
 ## Testing & Validation
 
 jyotishganit includes comprehensive test suites ensuring calculation accuracy:
