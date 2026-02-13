@@ -362,41 +362,42 @@ def shashtiamsa_from_long(sign: str, degrees: float) -> tuple[int, str, float]:
 
 def compute_divisional_position_for_type(
     sign: str, degrees: float, chart_type: str
-) -> str:
-    """Compute divisional position for given type, return divisional sign."""
+) -> tuple[str, float]:
+    """Compute divisional position for given type, return (divisional_sign, degrees_within_sign)."""
     if chart_type == "D9":
-        _, div_sign, _ = navamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = navamsa_from_long(sign, degrees)
     elif chart_type == "D2":
-        _, div_sign, _ = hora_from_long(sign, degrees)
+        _, div_sign, div_deg = hora_from_long(sign, degrees)
     elif chart_type == "D3":
-        _, div_sign, _ = drekkana_from_long(sign, degrees)
+        _, div_sign, div_deg = drekkana_from_long(sign, degrees)
     elif chart_type == "D4":
-        _, div_sign, _ = chaturtamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = chaturtamsa_from_long(sign, degrees)
     elif chart_type == "D7":
-        _, div_sign, _ = saptamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = saptamsa_from_long(sign, degrees)
     elif chart_type == "D10":
-        _, div_sign, _ = dasamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = dasamsa_from_long(sign, degrees)
     elif chart_type == "D12":
-        _, div_sign, _ = dwadasamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = dwadasamsa_from_long(sign, degrees)
     elif chart_type == "D16":
-        _, div_sign, _ = shodasamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = shodasamsa_from_long(sign, degrees)
     elif chart_type == "D20":
-        _, div_sign, _ = vimsamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = vimsamsa_from_long(sign, degrees)
     elif chart_type == "D24":
-        _, div_sign, _ = chaturvimsamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = chaturvimsamsa_from_long(sign, degrees)
     elif chart_type == "D27":
-        _, div_sign, _ = sapta_vimsamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = sapta_vimsamsa_from_long(sign, degrees)
     elif chart_type == "D30":
-        _, div_sign, _ = trimsamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = trimsamsa_from_long(sign, degrees)
     elif chart_type == "D40":
-        _, div_sign, _ = khavedamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = khavedamsa_from_long(sign, degrees)
     elif chart_type == "D45":
-        _, div_sign, _ = akshavedamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = akshavedamsa_from_long(sign, degrees)
     elif chart_type == "D60":
-        _, div_sign, _ = shashtiamsa_from_long(sign, degrees)
+        _, div_sign, div_deg = shashtiamsa_from_long(sign, degrees)
     else:
         div_sign = sign  # Default to D1
-    return div_sign
+        div_deg = degrees % 30.0
+    return div_sign, div_deg
 
 
 def compute_divisional_chart(d1_chart, chart_type: str) -> DivisionalChart:
@@ -404,10 +405,11 @@ def compute_divisional_chart(d1_chart, chart_type: str) -> DivisionalChart:
     # Get D1 ascendant sign for house placement calculation
     asc_sign_d1 = d1_chart.houses[0].sign
     asc_sign_d1_num = signnum(asc_sign_d1)
+    asc_deg = d1_chart.houses[0].sign_degrees if d1_chart.houses[0].sign_degrees is not None else 0.0
 
     # Ascendant positioning
-    div_asc_sign = compute_divisional_position_for_type(
-        d1_chart.houses[0].sign, d1_chart.houses[0].sign_degrees, chart_type
+    div_asc_sign, div_asc_deg = compute_divisional_position_for_type(
+        d1_chart.houses[0].sign, asc_deg, chart_type
     )
 
     # Calculate which D1 house this divisional ascendant sign falls in
@@ -415,7 +417,7 @@ def compute_divisional_chart(d1_chart, chart_type: str) -> DivisionalChart:
     d1_house_for_div_asc = ((div_asc_sign_num - asc_sign_d1_num) % 12) + 1
 
     div_asc = DivisionalAscendant(
-        sign=div_asc_sign, d1_house_placement=d1_house_for_div_asc
+        sign=div_asc_sign, sign_degrees=div_asc_deg, d1_house_placement=d1_house_for_div_asc
     )
 
     # Create houses
@@ -473,7 +475,7 @@ def compute_divisional_chart(d1_chart, chart_type: str) -> DivisionalChart:
 
     # Place planets in their houses
     for planet in d1_chart.planets:
-        p_sign = compute_divisional_position_for_type(
+        p_sign, p_deg = compute_divisional_position_for_type(
             planet.sign, planet.sign_degrees, chart_type
         )
 
@@ -484,6 +486,7 @@ def compute_divisional_chart(d1_chart, chart_type: str) -> DivisionalChart:
         div_planet = DivisionalPlanetPosition(
             celestial_body=planet.celestial_body,
             sign=p_sign,
+            sign_degrees=p_deg,
             d1_house_placement=planet.house,
         )
 

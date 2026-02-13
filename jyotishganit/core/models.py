@@ -252,12 +252,14 @@ class DivisionalAscendant:
     """Ascendant in divisional charts."""
 
     sign: str
+    sign_degrees: float  # Degrees within the divisional sign
     d1_house_placement: int  # D1 house where D1 asc sign falls
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "@type": "DivisionalAscendant",
             "sign": self.sign,
+            "signDegrees": self.sign_degrees,
             "d1HousePlacement": self.d1_house_placement,
         }
 
@@ -268,6 +270,7 @@ class DivisionalPlanetPosition:
 
     celestial_body: str
     sign: str
+    sign_degrees: float  # Degrees within the divisional sign
     d1_house_placement: int  # D1 house where D1 sign belongs
 
     def to_dict(self) -> dict[str, Any]:
@@ -275,6 +278,7 @@ class DivisionalPlanetPosition:
             "@type": "DivisionalPlanetPosition",
             "celestialBody": self.celestial_body,
             "sign": self.sign,
+            "signDegrees": self.sign_degrees,
             "d1HousePlacement": self.d1_house_placement,
         }
 
